@@ -5,6 +5,7 @@
  */
 package cliente.View;
 
+import server.Control.ServerControl;
 import server.Model.ClienteServer;
 import server.dao.ClienteDao;
 
@@ -19,27 +20,29 @@ public class Main {
      */
     public static void main(String[] args) {
     	
-    	ClienteDao dao = new ClienteDao();
-    	ClienteServer cliente = new ClienteServer();
-    	cliente.setNome("Maria");
-    	cliente.setEmail("email@email.com");
-    	cliente.setAnoNasc("2000");
-    	cliente.setSenha("123");
-    	cliente.setPortaCliente(56000);
-    	cliente.setIpCliente("f6dsf56a4d");
-    	cliente.setPortaServer(56002);
-    	cliente.setIpServer("dfasdfafff");
-    	cliente.setStatus("online");
-    	if(dao.store(cliente)) {
-    		System.out.println("GRAVOU");
-    	}
-    	System.out.println(dao.consultarCliente("email@email.com").toString());
+    	ServerControl server = new ServerControl();
     	
-    	cliente.setAnoNasc("2001");
-    	ClienteDao daoo = new ClienteDao();
-    	if(daoo.update(cliente)) {
-    		System.out.println("ATUALIZOU");
-    	}
+    	
+//    	ClienteDao dao = new ClienteDao();
+//    	cliente.setNome("Maria");
+//    	cliente.setEmail("email@email.com");
+//    	cliente.setAnoNasc("2000");
+//    	cliente.setSenha("123");
+//    	cliente.setPortaCliente(56000);
+//    	cliente.setIpCliente("f6dsf56a4d");
+//    	cliente.setPortaServer(56002);
+//    	cliente.setIpServer("dfasdfafff");
+//    	cliente.setStatus("online");
+//    	if(dao.store(cliente)) {
+//    		System.out.println("GRAVOU");
+//    	}
+//    	System.out.println(dao.consultarCliente("email@email.com").toString());
+//    	
+//    	cliente.setAnoNasc("2001");
+//    	ClienteDao daoo = new ClienteDao();
+//    	if(daoo.update(cliente)) {
+//    		System.out.println("ATUALIZOU");
+//    	}
     	
     	/*CLASSE CONEXAO
     	Conexao conexao = new Conexao();

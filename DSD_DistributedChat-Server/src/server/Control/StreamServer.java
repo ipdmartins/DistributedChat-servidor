@@ -21,11 +21,13 @@ public class StreamServer {
     private BufferedReader in;
     private PrintWriter out;
     private Socket socketStream;
+    private int idStream;
 
-    public void createStream(Socket socket) throws IOException {
+    public void createStream(Socket socket, int idStreammer) throws IOException {
         this.out = new PrintWriter(socket.getOutputStream(), true);
         this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         this.socketStream = socket;
+        this.idStream = idStreammer;
     }
 
     public void sendMessage(String message) throws IOException {
@@ -36,7 +38,7 @@ public class StreamServer {
         return in.readLine();
     }
 
-    public BufferedReader getIn() {
+    public BufferedReader getIn() { 
         return in;
     }
 
@@ -50,6 +52,14 @@ public class StreamServer {
 
 	public void setSocketStream(Socket socketStream) {
 		this.socketStream = socketStream;
+	}
+	
+	public int getIdStream() {
+		return idStream;
+	}
+
+	public void setIdStream(int idStream) {
+		this.idStream = idStream;
 	}
 
 	public void closeStream() {

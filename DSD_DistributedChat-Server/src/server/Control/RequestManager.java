@@ -31,7 +31,7 @@ public class RequestManager extends Thread {
         try {
             while (true) {
                 response = streamServer.readMessage();
-
+                System.out.println("manager leu: "+response);
                 if (!response.equalsIgnoreCase("")) {
                 	switch(response) {
                 	case "A":
@@ -41,6 +41,7 @@ public class RequestManager extends Thread {
                 	case "B":
                 		response = streamServer.readMessage();
                 		serverControl.authenticateUser(response, idStream);
+                		System.out.println("chamando control");
                 		break;
                 	case "C":
                 		response = streamServer.readMessage();
@@ -56,11 +57,7 @@ public class RequestManager extends Thread {
                 		break;
                 	case "F":
                 		response = streamServer.readMessage();
-                		serverControl.isClientAlive(response, idStream);
-                		break;
-                	case "CLIENTE":
-                		response = streamServer.readMessage();
-                		streamServer.sendMessage(response);
+                		serverControl.getLiveclients().add(response);
                 		break;
                 	}
                 	

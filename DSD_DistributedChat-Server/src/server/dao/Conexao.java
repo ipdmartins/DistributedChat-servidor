@@ -15,7 +15,7 @@ public class Conexao {
 	static Connection conn = null;
 
 	public synchronized Connection getConnection() {
-		String url = "jdbc:sqlite:db/ClienteServer.db";
+		String url = "jdbc:sqlite:db/Server.db";
 
 		if (conn == null) {
 			try {

@@ -38,7 +38,7 @@ public class ClienteDao {
             stm.setString(6, v.getIpCliente());
             stm.setInt(7, v.getPortaServer());
             stm.setString(8, v.getIpServer());
-            stm.setString(9, "online");
+            stm.setString(9, "ONLINE");
             stm.execute();
         } catch (SQLException ex) {
             System.err.println("ClienteDao (store). Não foi possível conectar no banco " + ex.getMessage());
@@ -78,7 +78,6 @@ public class ClienteDao {
         String sql = "UPDATE ClienteServer set nome=?,anoNasc=?,portaCliente=?, ipCliente=?, portaServer=?, ipServer=?, status=? where email= \""+c.getEmail()+"\"";
         boolean retorno = false;
         try {
-        	
         	PreparedStatement stm = con.getConnection().prepareStatement(sql);
             stm.setString(1, c.getNome());
             stm.setString(2, c.getAnoNasc());
@@ -86,7 +85,7 @@ public class ClienteDao {
             stm.setString(4, c.getIpCliente());
             stm.setInt(5, c.getPortaServer());
             stm.setString(6, c.getIpServer());
-            stm.setString(7, "online");
+            stm.setString(7, c.getStatus());
             if (stm.executeUpdate() > 0) {
                 retorno = true;
             }
@@ -105,9 +104,9 @@ public class ClienteDao {
         if(opt == 1) {
         	sql = "select * from ClienteServer order by id asc";
         }else if(opt == 2) {
-        	sql = "select * from Contatos inner join ClienteServer where Contatos.idContato = ClienteServer.\""+idBusca+"\"";
+        	sql = "select * from Contatos inner join ClienteServer on Contatos.idContato = "
+        			+ "ClienteServer.id where Contatos.idCliente = \""+idBusca+"\"";
         }
-        
         try {
             stm = con.getConnection().prepareStatement(sql);
             ResultSet rs = stm.executeQuery();
@@ -132,11 +131,35 @@ public class ClienteDao {
         return clientes;
     }
     
-   public boolean storeContact(ClienteServer v) {
-    	
-    	return true;
+   public boolean storeContact(int idCliente, int idContato) {									
+       try {
+           String sql = "insert into Contatos (idCliente, idContato) values (?,?)";
+           stm = con.getConnection().prepareStatement(sql);
+           stm.setInt(1, idCliente);
+           stm.setInt(2, idContato);
+           stm.execute();
+       } catch (SQLException ex) {
+           System.err.println("Erro no ClienteDao storeContact " + ex.getMessage());
+           return false;
+       }
+       return true;
     }
 
+   public boolean removeContact(int idCliente, int idContato) {
+	   try {
+           String sql = "delete from Contatos where idCliente = ? and idContato = ?";
+           stm = con.getConnection().prepareStatement(sql);
+           stm.setInt(1, idCliente);
+           stm.setInt(2, idContato);
+           if (stm.executeUpdate() > 0) {
+               return true;
+           }
+       } catch (SQLException ex) {
+           System.err.println("Erro no ClienteDao removeContact " + ex.getMessage());
+           return false;
+       }
+	   return true;
+   }
 
     public void desconectar() {
     	con.desconectar();
