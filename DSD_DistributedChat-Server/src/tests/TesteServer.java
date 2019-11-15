@@ -35,8 +35,11 @@ public class TesteServer {
 	private static String response = "";
 	private static Socket socketCliente;
 	private static StreamServer streamer;
+	private static String serverIP = "192.168.2.171";
+	private static String serverPort = "56003";
+	
 
-	@Test
+//	@Test
 	public void testeClienteControlRegister() {
 		cliente = new ClienteServer();
 		cliente.setNome("nome17");
@@ -45,8 +48,8 @@ public class TesteServer {
 		cliente.setSenha("123");
 		cliente.setPortaCliente(Integer.parseInt("56005"));
 		cliente.setIpCliente("ipClientes");
-		cliente.setPortaServer(Integer.parseInt("56003"));
-		cliente.setIpServer("192.168.2.171");
+		cliente.setPortaServer(Integer.parseInt(serverPort));
+		cliente.setIpServer(serverIP);
 		cliente.setStatus("null");
 		response = gson.toJson(cliente);
 		if (socketCliente == null) {
@@ -59,7 +62,7 @@ public class TesteServer {
 		assertEquals(response, "stored");
 	}
 	
-	@Test
+//	@Test
 	public void testeClienteControlActualize() {
 		cliente = new ClienteServer();
 		cliente.setNome("nome12");
@@ -68,8 +71,8 @@ public class TesteServer {
 		cliente.setSenha("1112");
 		cliente.setPortaCliente(Integer.parseInt("56005"));
 		cliente.setIpCliente("ipCliehfghfd");
-		cliente.setPortaServer(Integer.parseInt("56003"));
-		cliente.setIpServer("192.168.2.171");
+		cliente.setPortaServer(Integer.parseInt(serverPort));
+		cliente.setIpServer(serverIP);
 		cliente.setStatus("null");
 		response = gson.toJson(cliente);
 		if (socketCliente == null) {
@@ -79,7 +82,7 @@ public class TesteServer {
 		assertEquals(response, "actualized");
 	}
 	
-	@Test
+//	@Test
 	public void testeClienteControlLogin() {
 		String login2 = "teste3@email.com" + "," + "123";
 		if (socketCliente == null) {
@@ -94,7 +97,7 @@ public class TesteServer {
 	
 	@Test
 	public void testeClienteControlAdd() {
-		String add = "teste2@email.com" + "," + "teste6@email.com";
+		String add = "teste2@email.com" + "," + "teste8@email.com";
 		if (socketCliente == null) {
 			connect();
 		}
@@ -105,7 +108,7 @@ public class TesteServer {
 		assertEquals(add, "added");
 	}
 	
-	@Test
+//	@Test
 	public void testeClienteControlRemove() {
 		String add = "teste2@email.com" + "," + "teste4@email.com";
 		if (socketCliente == null) {
@@ -118,7 +121,7 @@ public class TesteServer {
 		assertEquals(add, "removed");
 	}
 	
-	@Test
+//	@Test
 	public void testeClienteControlLogout() {
 		String logout = "logout";
 		if (socketCliente == null) {
@@ -155,7 +158,7 @@ public class TesteServer {
 	
 	public void connect() {
 		try {
-			socketCliente = new Socket("10.60.92.90", 56003);
+			socketCliente = new Socket(serverIP, Integer.parseInt(serverPort));
 			if (socketCliente != null) {
 				this.streamer = new StreamServer();
 				this.streamer.createStream(socketCliente, 1);

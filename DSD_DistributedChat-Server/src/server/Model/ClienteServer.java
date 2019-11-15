@@ -5,14 +5,13 @@ public class ClienteServer {
 	private int id;
 	private String nome;
 	private String email;
-	private String anoNasc;
 	private String senha;
+	private String anoNasc;
 	private int portaCliente;
 	private String ipCliente;
 	private int portaServer;
 	private String ipServer;
 	private String status;
-	
 	
 	public int getId() {
 		return id;

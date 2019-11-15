@@ -88,6 +88,7 @@ public class ServerControl {
 	public void register(String response, int idStream) {
 		String teste = "";
 		this.cliente = gson.fromJson(response, ClienteServer.class);
+		System.out.println("server recebe "+cliente);
 		if (!cliente.getEmail().equalsIgnoreCase(null)) {
 			ClienteServer clienteTeste = dao.consultarCliente(cliente.getEmail());
 
@@ -95,7 +96,6 @@ public class ServerControl {
 				if (dao.store(cliente)) {
 					teste = "stored";
 					addresser(teste, idStream);
-					getUserList(idStream, 1, 0);
 				} else {
 					teste = "fail to store";
 					addresser(teste, idStream); 
@@ -115,35 +115,50 @@ public class ServerControl {
 			addresser(teste, idStream);
 		}
 	}
-
-	public String authenticateUser(String response, int idStream) {
+	
+	public void validatePass(String response, int idStream) {
 		String[] vetor = response.split(",");
 		String email = vetor[0];
 		String senha = vetor[1];
 
 		ClienteServer cliLogin = dao.consultarCliente(email);
-		System.out.println("login server achou o cliente: " + cliLogin);
+
+		if (email.equalsIgnoreCase(cliLogin.getEmail()) && senha.equalsIgnoreCase(cliLogin.getSenha())) {
+			addresser("Granted", idStream);
+		} else {
+			addresser("Validation failed", idStream);
+		}
+	}
+
+	public void authenticateUser(String response, int idStream) {
+		String[] vetor = response.split(",");
+		String email = vetor[0];
+		String senha = vetor[1];
+
+		ClienteServer cliLogin = dao.consultarCliente(email);
 
 		if (email.equalsIgnoreCase(cliLogin.getEmail()) && senha.equalsIgnoreCase(cliLogin.getSenha())) {
 			addresser("Welcome", idStream);
+			String cliente = gson.toJson(cliLogin);
+			addresser(cliente, idStream);
 			getUserList(idStream, 2, cliLogin.getId());
 		} else {
 			addresser("fail to log", idStream);
 		}
-		return "";
 	}
-
+	
 	public void addContact(String response, int idStream) {
 		String[] vetor = response.split(",");
 		String emailCliente = vetor[0];
 		String emailContato = vetor[1];
-
+		System.out.println("server add: "+response);
 		ClienteServer cont = dao.consultarCliente(emailContato);
 		ClienteServer cli = dao.consultarCliente(emailCliente);
 
 		if (cont != null && cli != null) {
 			if (dao.storeContact(cli.getId(), cont.getId())) {
 				addresser("added", idStream);
+				System.out.println("server add: added");
 				getUserList(idStream, 2, cli.getId());
 			} else {
 				addresser("fail to add", idStream);
@@ -208,7 +223,7 @@ public class ServerControl {
 	public void getUserList(int idStream, int opt, int idBusca) {
 		clienteList = dao.consultar(opt, idBusca);
 		String listaJson = gson.toJson(clienteList);
-		System.out.println("getUserList server JSON, deve enviar ao cliente: " + listaJson);
+
 		addresser(listaJson, idStream);
 		clienteList.clear();
 	}
@@ -238,6 +253,8 @@ public class ServerControl {
 	public List<String> getLiveclients() {
 		return liveclients;
 	}
+
+
 
 	
 
