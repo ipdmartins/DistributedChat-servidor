@@ -151,7 +151,7 @@ public class ServerControl {
 		String[] vetor = response.split(",");
 		String emailCliente = vetor[0];
 		String emailContato = vetor[1];
-		System.out.println("server add: "+response);
+
 		ClienteServer cont = dao.consultarCliente(emailContato);
 		ClienteServer cli = dao.consultarCliente(emailCliente);
 
@@ -230,15 +230,20 @@ public class ServerControl {
 
 	public void logout(String response, int idStream) {
 
-		answer = "logged out";
-		addresser(answer, idStream);
-//		try {
-//			sleep(20000);
-//			socketList.get(idStream).close();
-//			streamList.get(idStream).closeStream();
-//		} catch (IOException | InterruptedException e) {
-//			System.err.println("ERRO AO FECHAR SOCKET NO SERVER LOGOUT " + e);
-//		}
+		ClienteServer cli = dao.consultarCliente(response);
+		if(cli != null) {
+			cli.setStatus("OFFLINE");
+			dao.update(cli);
+			addresser("logged out", idStream);
+		}
+		
+		try {
+			sleep(20000);
+			socketList.get(idStream).close();
+			streamList.get(idStream).closeStream();
+		} catch (IOException | InterruptedException e) {
+			System.err.println("ERRO AO FECHAR SOCKET NO SERVER LOGOUT " + e);
+		}
 	}
 
 	public void addresser(String response, int idStream) {

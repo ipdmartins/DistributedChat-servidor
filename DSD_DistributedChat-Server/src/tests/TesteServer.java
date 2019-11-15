@@ -27,8 +27,8 @@ import java.util.List;
  * @author ipdmartins
  */
 
-public class TesteServer { 
-	
+public class TesteServer {
+
 	private static String result = "";
 	private static ClienteServer cliente;
 	private static Gson gson = new Gson();
@@ -37,13 +37,12 @@ public class TesteServer {
 	private static StreamServer streamer;
 	private static String serverIP = "192.168.2.171";
 	private static String serverPort = "56003";
-	
 
-//	@Test
+	@Test
 	public void testeClienteControlRegister() {
 		cliente = new ClienteServer();
-		cliente.setNome("nome17");
-		cliente.setEmail("teste17@email.com");
+		cliente.setNome("nome27");
+		cliente.setEmail("teste27@email.com");
 		cliente.setAnoNasc("1901");
 		cliente.setSenha("123");
 		cliente.setPortaCliente(Integer.parseInt("56005"));
@@ -56,13 +55,10 @@ public class TesteServer {
 			connect();
 		}
 		response = addresser("A", response);
-		if(response.equalsIgnoreCase("stored")) {
-			listManager(1);
-		}
 		assertEquals(response, "stored");
 	}
-	
-//	@Test
+
+	@Test
 	public void testeClienteControlActualize() {
 		cliente = new ClienteServer();
 		cliente.setNome("nome12");
@@ -81,47 +77,64 @@ public class TesteServer {
 		response = addresser("A", response);
 		assertEquals(response, "actualized");
 	}
-	
-//	@Test
+
+	@Test
 	public void testeClienteControlLogin() {
-		String login2 = "teste3@email.com" + "," + "123";
+		boolean cond = true;
+		List<ClienteServer> listaClintes = new ArrayList<ClienteServer>();
+		List<String> contatos = new ArrayList<String>();
+		contatos.add("teste16@email.com");
+		contatos.add("teste13@email.com");
+		String login2 = "email24" + "," + "123";
 		if (socketCliente == null) {
 			connect();
 		}
 		login2 = addresser("B", login2);
-		if(login2.equalsIgnoreCase("Welcome")) {
-			listManager(2);
+		if (login2.equalsIgnoreCase("Welcome")) {
+			String res = listManager();
+			cliente = gson.fromJson(res, ClienteServer.class);
+			if (cliente.getEmail().equalsIgnoreCase("email24")) {
+				res = listManager();
+				Type tipoLista = new TypeToken<ArrayList<ClienteServer>>() {
+				}.getType();
+				listaClintes = gson.fromJson(res, tipoLista);
+				for (int i = 0; i < listaClintes.size(); i++) {
+					if (!listaClintes.get(i).getEmail().equalsIgnoreCase(contatos.get(i))) {
+						cond = false;
+					}
+				}
+			}
 		}
-		assertEquals(login2, "Welcome");
+		assertTrue(cond);
 	}
-	
+
 	@Test
 	public void testeClienteControlAdd() {
-		String add = "teste2@email.com" + "," + "teste8@email.com";
+		String add = "teste2@email.com" + "," + "teste3@email.com";
 		if (socketCliente == null) {
 			connect();
 		}
 		add = addresser("D", add);
-		if(add.equalsIgnoreCase("added")) {
-			listManager(2);
+		if (add.equalsIgnoreCase("added")) {
+			add = listManager();
 		}
 		assertEquals(add, "added");
 	}
-	
-//	@Test
+
+	@Test
 	public void testeClienteControlRemove() {
 		String add = "teste2@email.com" + "," + "teste4@email.com";
 		if (socketCliente == null) {
 			connect();
 		}
 		add = addresser("E", add);
-		if(add.equalsIgnoreCase("removed")) {
-			listManager(2);
+		if (add.equalsIgnoreCase("removed")) {
+			add = listManager();
 		}
 		assertEquals(add, "removed");
 	}
-	
-//	@Test
+
+	@Test
 	public void testeClienteControlLogout() {
 		String logout = "logout";
 		if (socketCliente == null) {
@@ -130,8 +143,7 @@ public class TesteServer {
 		logout = addresser("C", logout);
 		assertEquals(logout, "logged out");
 	}
-	
-	
+
 	public String addresser(String req, String response) {
 		try {
 			this.streamer.sendMessage(req);
@@ -142,20 +154,17 @@ public class TesteServer {
 		}
 		return this.response;
 	}
-	
-	public void listManager(int opt) {
+
+	public String listManager() {
 		try {
-			String jsonLista = this.streamer.readMessage();
-			if(opt == 1) {
-				System.out.println("LISTA DE USUÁRIOS CADASTRADOS "+jsonLista);
-			}else if(opt == 2) {
-				System.out.println("LISTA DE CONTATOS "+jsonLista);
-			}
+			String json = this.streamer.readMessage();
+			return json;
 		} catch (IOException e) {
 			System.err.println("ERRO AO RECEBER LISTA GSON DO SERVER " + e);
 		}
+		return "";
 	}
-	
+
 	public void connect() {
 		try {
 			socketCliente = new Socket(serverIP, Integer.parseInt(serverPort));
@@ -169,7 +178,7 @@ public class TesteServer {
 			System.err.println("ERRO NA CONEXAO " + e);
 		}
 	}
-	
+
 //	@Test
 //	public void testeClienteControlNotifylive() {
 //		String remove = "teste2@email.com";
