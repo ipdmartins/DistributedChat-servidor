@@ -38,7 +38,7 @@ public class ClienteDao {
             stm.setString(6, v.getIpCliente());
             stm.setInt(7, v.getPortaServer());
             stm.setString(8, v.getIpServer());
-            stm.setString(9, "ONLINE");
+            stm.setString(9, v.getStatus());
             stm.execute();
         } catch (SQLException ex) {
             System.err.println("ClienteDao (store). Não foi possível conectar no banco " + ex.getMessage());

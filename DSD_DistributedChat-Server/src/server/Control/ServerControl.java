@@ -73,9 +73,7 @@ public class ServerControl {
 					streamServer.createStream(socket, streamList.size() - 1);
 					streamList.add(streamServer);
 					manager = new RequestManager(streamServer, this, streamList.size() - 1);
-					System.out.println("id stream: " + (streamList.size() - 1));
 					manager.start();
-					System.out.println("LANÇOU MANAGER");
 				} else {
 					System.out.println("CONEXÃO NÃO EFETUADA");
 				}
@@ -88,10 +86,15 @@ public class ServerControl {
 	public void register(String response, int idStream) {
 		String teste = "";
 		this.cliente = gson.fromJson(response, ClienteServer.class);
-		System.out.println("server recebe "+cliente);
 		if (!cliente.getEmail().equalsIgnoreCase(null)) {
 			ClienteServer clienteTeste = dao.consultarCliente(cliente.getEmail());
-
+			String ip = socketList.get(idStream).getInetAddress().toString();
+			if(ip.contains("/")) {
+				ip = ip.replace("/", "");
+			}
+			this.cliente.setIpCliente(ip);
+			this.cliente.setPortaCliente(socketList.get(idStream).getPort());
+			
 			if (clienteTeste == null) {
 				if (dao.store(cliente)) {
 					teste = "stored";
@@ -138,6 +141,8 @@ public class ServerControl {
 		ClienteServer cliLogin = dao.consultarCliente(email);
 
 		if (email.equalsIgnoreCase(cliLogin.getEmail()) && senha.equalsIgnoreCase(cliLogin.getSenha())) {
+			cliLogin.setStatus("ONLINE");
+			dao.update(cliLogin);
 			addresser("Welcome", idStream);
 			String cliente = gson.toJson(cliLogin);
 			addresser(cliente, idStream);
@@ -158,7 +163,6 @@ public class ServerControl {
 		if (cont != null && cli != null) {
 			if (dao.storeContact(cli.getId(), cont.getId())) {
 				addresser("added", idStream);
-				System.out.println("server add: added");
 				getUserList(idStream, 2, cli.getId());
 			} else {
 				addresser("fail to add", idStream);
@@ -223,7 +227,6 @@ public class ServerControl {
 	public void getUserList(int idStream, int opt, int idBusca) {
 		clienteList = dao.consultar(opt, idBusca);
 		String listaJson = gson.toJson(clienteList);
-
 		addresser(listaJson, idStream);
 		clienteList.clear();
 	}
@@ -237,18 +240,17 @@ public class ServerControl {
 			addresser("logged out", idStream);
 		}
 		
-		try {
-			sleep(20000);
-			socketList.get(idStream).close();
-			streamList.get(idStream).closeStream();
-		} catch (IOException | InterruptedException e) {
-			System.err.println("ERRO AO FECHAR SOCKET NO SERVER LOGOUT " + e);
-		}
+//		try {
+//			sleep(20000);
+//			socketList.get(idStream).close();
+//			streamList.get(idStream).closeStream();
+//		} catch (IOException | InterruptedException e) {
+//			System.err.println("ERRO AO FECHAR SOCKET NO SERVER LOGOUT " + e);
+//		}
 	}
 
 	public void addresser(String response, int idStream) {
 		try {
-			System.out.println("addresser: " + idStream);
 			streamList.get(idStream).sendMessage(response);
 		} catch (IOException e) {
 			System.err.println("ERRO NA CONEXAO " + e);

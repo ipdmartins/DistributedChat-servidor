@@ -40,7 +40,6 @@ public class RequestManager extends Thread {
                 	case "B":
                 		response = streamServer.readMessage();
                 		serverControl.authenticateUser(response, idStream);
-                		System.out.println("chamando control");
                 		break;
                 	case "C":
                 		response = streamServer.readMessage();
