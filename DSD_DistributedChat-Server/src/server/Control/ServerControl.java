@@ -97,18 +97,22 @@ public class ServerControl {
 
 			if (clienteTeste == null) {
 				if (dao.store(cliente)) {
+					addresser("A", idStream);
 					teste = "stored";
 					addresser(teste, idStream);
 				} else {
+					addresser("A", idStream);
 					teste = "fail to store";
 					addresser(teste, idStream);
 				}
 			} else if (clienteTeste.getEmail().equalsIgnoreCase(cliente.getEmail())
 					&& clienteTeste.getSenha().equalsIgnoreCase(cliente.getSenha())) {
 				if (dao.update(cliente)) {
+					addresser("C", idStream);
 					teste = "actualized";
 					addresser(teste, idStream);
 				} else {
+					addresser("C", idStream);
 					teste = "fail to actualize";
 					addresser(teste, idStream);
 				}
@@ -127,8 +131,10 @@ public class ServerControl {
 		ClienteServer cliLogin = dao.consultarCliente(email);
 
 		if (email.equalsIgnoreCase(cliLogin.getEmail()) && senha.equalsIgnoreCase(cliLogin.getSenha())) {
+			addresser("B", idStream);
 			addresser("Granted", idStream);
 		} else {
+			addresser("B", idStream);
 			addresser("Validation failed", idStream);
 		}
 	}
@@ -146,25 +152,27 @@ public class ServerControl {
 		}
 
 		System.out.println("ip: " + cliLogin.getIpCliente());
-				
+
 		if (email.equalsIgnoreCase(cliLogin.getEmail()) && senha.equalsIgnoreCase(cliLogin.getSenha())) {
 			cliLogin.setStatus("ONLINE");
 			if (!cliLogin.getIpCliente().equalsIgnoreCase(ip)) {
 				cliLogin.setIpCliente(ip);
 			}
-			if(socketList.get(idStream).getPort() == 56000) {
+			if (socketList.get(idStream).getPort() == 56000) {
 				cliLogin.setPortaCliente(56001);
-			}else if(socketList.get(idStream).getPort() == 56005) {
+			} else if (socketList.get(idStream).getPort() == 56005) {
 				cliLogin.setPortaCliente(56004);
-			}else {
+			} else {
 				cliLogin.setPortaCliente(socketList.get(idStream).getPort() + 1);
 			}
 			dao.update(cliLogin);
-			addresser("Welcome", idStream);
+			addresser("D", idStream);
 			String cliente = gson.toJson(cliLogin);
 			addresser(cliente, idStream);
-			getUserList(idStream, 2, cliLogin.getId());
+			addresser("E", idStream);
+			getUserList(idStream, 2, cliLogin.getId(), 1, cliLogin);
 		} else {
+			addresser("D", idStream);
 			addresser("fail to log", idStream);
 		}
 	}
@@ -179,9 +187,10 @@ public class ServerControl {
 
 		if (cont != null && cli != null) {
 			if (dao.storeContact(cli.getId(), cont.getId())) {
-				addresser("added", idStream);
-				getUserList(idStream, 2, cli.getId());
+				addresser("I", idStream);
+				getUserList(idStream, 2, cli.getId(), 0, null);
 			} else {
+				addresser("I", idStream);
 				addresser("fail to add", idStream);
 			}
 		}
@@ -197,12 +206,68 @@ public class ServerControl {
 
 		if (cont != null && cli != null) {
 			if (dao.removeContact(cli.getId(), cont.getId())) {
-				addresser("removed", idStream);
-				getUserList(idStream, 2, cli.getId());
+				addresser("H", idStream);
+				getUserList(idStream, 2, cli.getId(), 0, null);
 			} else {
+				addresser("H", idStream);
 				addresser("fail to remove", idStream);
 			}
 		}
+	}
+
+	public void getUserList(int idStream, int opt, int idBusca, int login, ClienteServer cliLogin) {
+		// pega a lista de contatos de quem fez login e devolve a ele.
+		clienteList = dao.consultar(opt, idBusca);
+		String listaJson = gson.toJson(clienteList);
+		addresser(listaJson, idStream);
+
+		if (login == 1) {
+			for (int i = 0; i < clienteList.size(); i++) {
+				if (clienteList.get(i).getStatus().equalsIgnoreCase("ONLINE")) {
+					for (int j = 0; j < streamList.size(); j++) {
+						String ip = streamList.get(j).getSocketStream().getInetAddress().toString();
+						if (ip.contains("/")) {
+							ip = ip.replace("/", "");
+						}
+						if (ip.equalsIgnoreCase(clienteList.get(i).getIpCliente())) {
+							addresser("F", j);
+							String update = gson.toJson(cliLogin, ClienteServer.class);
+							addresser(update, j);
+						}
+					}
+				}
+			}
+		}
+		clienteList.clear();
+	}
+
+	public void logout(String response, int idStream) {
+		ClienteServer cli = dao.consultarCliente(response);
+		if (cli != null) {
+			cli.setStatus("OFFLINE");
+			dao.update(cli);
+			addresser("G", idStream);
+			addresser("logged out", idStream);
+		}
+		try {
+			sleep(20000);
+			socketList.get(idStream).close();
+			streamList.get(idStream).closeStream();
+		} catch (IOException | InterruptedException e) {
+			System.err.println("ERRO AO FECHAR SOCKET NO SERVER LOGOUT " + e);
+		}
+	}
+
+	public void addresser(String response, int idStream) {
+		try {
+			streamList.get(idStream).sendMessage(response);
+		} catch (IOException e) {
+			System.err.println("ERRO NA CONEXAO " + e);
+		}
+	}
+
+	public List<String> getLiveclients() {
+		return liveclients;
 	}
 
 	public void isClientAlive() {
@@ -230,7 +295,7 @@ public class ServerControl {
 						for (int j = 0; j < streamList.size(); j++) {
 							if (streamList.get(j).getSocketStream().getInetAddress().toString()
 									.equalsIgnoreCase(lista.get(i).getIpCliente())) {
-								getUserList(streamList.get(j).getIdStream(), 2, lista.get(i).getId());
+								getUserList(streamList.get(j).getIdStream(), 2, lista.get(i).getId(), 0, null);
 							}
 						}
 					}
@@ -239,57 +304,6 @@ public class ServerControl {
 				System.err.println("ERRO NO SERVER isClientAlive " + e);
 			}
 		}
-	}
-
-	public void getUserList(int idStream, int opt, int idBusca) {
-		clienteList = dao.consultar(opt, idBusca);
-		String listaJson = gson.toJson(clienteList);
-		addresser(listaJson, idStream);
-		
-		for (int i = 0; i < clienteList.size(); i++) {
-			if(clienteList.get(i).getStatus().equalsIgnoreCase("ONLINE")) {
-				for (int j = 0; i < streamList.size(); j++) {
-					String ip = streamList.get(j).getSocketStream().getInetAddress().toString();
-					if (ip.contains("/")) {
-						ip = ip.replace("/", "");
-					}
-					if(ip.equalsIgnoreCase(clienteList.get(i).getIpCliente())) {
-						addresser(listaJson, idStream);
-					}
-				}
-			}
-		}
-		clienteList.clear();
-	}
-
-	public void logout(String response, int idStream) {
-
-		ClienteServer cli = dao.consultarCliente(response);
-		if (cli != null) {
-			cli.setStatus("OFFLINE");
-			dao.update(cli);
-			addresser("logged out", idStream);
-		}
-
-//		try {
-//			sleep(20000);
-//			socketList.get(idStream).close();
-//			streamList.get(idStream).closeStream();
-//		} catch (IOException | InterruptedException e) {
-//			System.err.println("ERRO AO FECHAR SOCKET NO SERVER LOGOUT " + e);
-//		}
-	}
-
-	public void addresser(String response, int idStream) {
-		try {
-			streamList.get(idStream).sendMessage(response);
-		} catch (IOException e) {
-			System.err.println("ERRO NA CONEXAO " + e);
-		}
-	}
-
-	public List<String> getLiveclients() {
-		return liveclients;
 	}
 
 }
