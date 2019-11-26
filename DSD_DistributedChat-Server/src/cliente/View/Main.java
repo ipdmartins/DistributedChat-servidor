@@ -5,6 +5,10 @@
  */
 package cliente.View;
 
+import static java.lang.Thread.sleep;
+
+import java.time.LocalTime;
+
 import server.Control.ServerControl;
 import server.Model.ClienteServer;
 import server.dao.ClienteDao;
@@ -17,11 +21,11 @@ public class Main {
 
     /**
      * @param args the command line arguments
+     * @throws InterruptedException 
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
     	
     	ServerControl server = new ServerControl();
-    	
     	
 //    	ClienteDao dao = new ClienteDao();
 //    	cliente.setNome("Maria");

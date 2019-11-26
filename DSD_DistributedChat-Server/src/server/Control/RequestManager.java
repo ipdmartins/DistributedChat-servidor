@@ -55,7 +55,7 @@ public class RequestManager extends Thread {
                 		break;
                 	case "F":
                 		response = streamServer.readMessage();
-                		serverControl.getLiveclients().add(response);
+                		serverControl.setLiveClient(response);
                 		break;
                 	case "G":
                 		response = streamServer.readMessage();

@@ -1,5 +1,8 @@
 package server.Model;
 
+import java.sql.Date;
+import java.time.LocalTime;
+
 public class ClienteServer {
 
 	private int id;
@@ -12,7 +15,17 @@ public class ClienteServer {
 	private int portaServer;
 	private String ipServer;
 	private String status;
-	
+	private long time;
+
+	public long getTime() {
+		return time;
+	}
+
+	public void setTime() {
+		this.time = System.currentTimeMillis();
+		this.time = time/1000;
+	}
+
 	public int getId() {
 		return id;
 	}
