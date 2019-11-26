@@ -170,7 +170,7 @@ public class ServerControl {
 			String cliente = gson.toJson(cliLogin);
 			addresser(cliente, idStream);
 			addresser("E", idStream);
-			getUserList(idStream, 2, cliLogin.getId(), 1, cliLogin);
+			getUserList(idStream, 2, cliLogin.getId(), 1, cliLogin, 1);
 		} else {
 			addresser("D", idStream);
 			addresser("fail to log", idStream);
@@ -188,7 +188,7 @@ public class ServerControl {
 		if (cont != null && cli != null) {
 			if (dao.storeContact(cli.getId(), cont.getId())) {
 				addresser("I", idStream);
-				getUserList(idStream, 2, cli.getId(), 0, null);
+				getUserList(idStream, 2, cli.getId(), 0, null, 1);
 			} else {
 				addresser("I", idStream);
 				addresser("fail to add", idStream);
@@ -207,7 +207,7 @@ public class ServerControl {
 		if (cont != null && cli != null) {
 			if (dao.removeContact(cli.getId(), cont.getId())) {
 				addresser("H", idStream);
-				getUserList(idStream, 2, cli.getId(), 0, null);
+				getUserList(idStream, 2, cli.getId(), 0, null, 1);
 			} else {
 				addresser("H", idStream);
 				addresser("fail to remove", idStream);
@@ -215,11 +215,13 @@ public class ServerControl {
 		}
 	}
 
-	public void getUserList(int idStream, int opt, int idBusca, int login, ClienteServer cliLogin) {
+	public void getUserList(int idStream, int opt, int idBusca, int login, ClienteServer cliLogin, int cond) {
 		// pega a lista de contatos de quem fez login e devolve a ele.
 		clienteList = dao.consultar(opt, idBusca);
-		String listaJson = gson.toJson(clienteList);
-		addresser(listaJson, idStream);
+		if (cond == 1) {
+			String listaJson = gson.toJson(clienteList);
+			addresser(listaJson, idStream);
+		}
 
 		if (login == 1) {
 			for (int i = 0; i < clienteList.size(); i++) {
@@ -248,6 +250,7 @@ public class ServerControl {
 			dao.update(cli);
 			addresser("G", idStream);
 			addresser("logged out", idStream);
+			getUserList(idStream, 2, cli.getId(), 1, cli, 0);
 		}
 		try {
 			sleep(20000);
@@ -295,7 +298,7 @@ public class ServerControl {
 						for (int j = 0; j < streamList.size(); j++) {
 							if (streamList.get(j).getSocketStream().getInetAddress().toString()
 									.equalsIgnoreCase(lista.get(i).getIpCliente())) {
-								getUserList(streamList.get(j).getIdStream(), 2, lista.get(i).getId(), 0, null);
+								getUserList(streamList.get(j).getIdStream(), 2, lista.get(i).getId(), 0, null, 0);
 							}
 						}
 					}
